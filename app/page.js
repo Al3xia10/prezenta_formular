@@ -5,6 +5,7 @@ import QRCode from "qrcode"; // Importăm corect qrcode pentru generarea QR
 export default function Home() {
   const [token, setToken] = useState("");
   const [qrUrl, setQrUrl] = useState(""); // State pentru URL-ul QR
+  const [error, setError] = useState(null); // State pentru gestionarea erorilor
 
   useEffect(() => {
     const generatedToken = Math.random().toString(36).substr(2, 8);
@@ -19,12 +20,19 @@ export default function Home() {
       })
       .catch((err) => {
         console.error("Error generating QR code:", err);
+        setError(
+          "A apărut o eroare la generarea codului QR. Încercați din nou."
+        ); // Setăm mesajul de eroare
       });
 
     // Salvează token-ul temporar
     fetch("/api/token", {
       method: "POST",
       body: JSON.stringify({ token: generatedToken }),
+      headers: { "Content-Type": "application/json" }, // Setăm header-ul corect
+    }).catch((err) => {
+      console.error("Error posting token:", err);
+      setError("A apărut o eroare la salvarea tokenului."); // Setăm mesajul de eroare
     });
   }, []);
 
@@ -33,6 +41,9 @@ export default function Home() {
       <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
         Scanează codul QR pentru prezență
       </h1>
+
+      {/* Afișăm mesaj de eroare dacă există */}
+      {error && <p className="text-red-500">{error}</p>}
 
       {qrUrl && (
         <div className="bg-white p-4 rounded-xl shadow-lg">
