@@ -1,17 +1,30 @@
-import { writeFile, readFile } from "fs/promises";
-import path from "path";
+import { appendToSheet } from "@/lib/sheets";
 
 export async function POST(req) {
-  const data = await req.json();
-  const filePath = path.join(process.cwd(), "public", "data.json");
+  const body = await req.json();
 
-  let existing = [];
+  const { nume, prenume, seria, anul, grupa, disciplina, tip, email } = body;
+
+  const row = [
+    new Date().toLocaleString("ro-RO"),
+    nume,
+    prenume,
+    seria,
+    anul,
+    grupa,
+    disciplina,
+    tip,
+    email,
+  ];
+
   try {
-    existing = JSON.parse(await readFile(filePath, "utf8"));
-  } catch {}
-
-  existing.push({ ...data, timestamp: new Date().toISOString() });
-  await writeFile(filePath, JSON.stringify(existing, null, 2));
-
-  return new Response(JSON.stringify({ success: true }), { status: 200 });
+    await appendToSheet(row);
+    return new Response(JSON.stringify({ success: true }), { status: 200 });
+  } catch (error) {
+    console.error("Eroare la scrierea în Google Sheets:", error);
+    return new Response(
+      JSON.stringify({ success: false, error: error.message }),
+      { status: 500 }
+    );
+  }
 }

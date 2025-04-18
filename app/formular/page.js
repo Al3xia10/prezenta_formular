@@ -36,11 +36,28 @@ export default function Formular() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    await fetch("/api/save", {
+
+    // Trimite datele către API-ul care le va salva în Google Sheets
+    const res = await fetch("/api/saveToSheet", {
       method: "POST",
-      body: JSON.stringify({ ...form, email: session?.user?.email }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        ...form,
+        email: session?.user?.email,
+        token: token, // Tokenul pentru validare
+      }),
     });
-    setSubmitted(true);
+
+    const data = await res.json();
+
+    if (data.success) {
+      setSubmitted(true); // Setează formularul ca fiind trimis
+    } else {
+      // În caz de eroare
+      alert("A apărut o eroare la salvarea datelor.");
+    }
   }
 
   if (!valid)
