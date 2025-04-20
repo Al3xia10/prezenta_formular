@@ -1,7 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: "export",
-  // alte opțiuni (dacă este cazul)
+  // Eliminăm output: 'export' pentru a permite Next.js să folosească server-side logic
+  reactStrictMode: true,
+  // Adaugă orice alte configurații de care ai nevoie
 };
 
 module.exports = nextConfig;
